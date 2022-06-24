@@ -41,7 +41,8 @@ namespace WpfBrowser
                     services.AddSingleton<IMessenger, WeakReferenceMessenger>();
                     services.AddSingleton<MainWindow>();
                     services.AddSingleton<MainWindowViewModel>();
-
+                    services.AddTransient<MyUserControl>();
+                    services.AddTransient<MyControlViewModel>();
 
                     services.AddSingleton<ITabViewModelFactory, MyTabViewModelFactory>();
                     //services.AddSingleton<ITabViewModelFactory, TabViewModelFactory>();                         // TabViewModels are not instantiated by DI container

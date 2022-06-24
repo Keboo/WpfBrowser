@@ -19,38 +19,55 @@
         FontFamily="{DynamicResource MaterialDesignFont}"
         Title="WPF Browser" Height="700" Width="1000" d:DataContext="{d:DesignInstance vm:MainWindowViewModel}">
 
-    <mah:MetroWindow.LeftWindowCommands>
-        <mah:WindowCommands>
-            <Button Click="LaunchGitHubSite" ToolTip="Open up the GitHub site" Cursor="Hand">
-                <md:PackIcon Width="22" Height="22" Kind="Github" />
-            </Button>
-        </mah:WindowCommands>
-    </mah:MetroWindow.LeftWindowCommands>
+  <mah:MetroWindow.LeftWindowCommands>
+    <mah:WindowCommands>
+      <Button Click="LaunchGitHubSite" ToolTip="Open up the GitHub site" Cursor="Hand">
+        <md:PackIcon Width="22" Height="22" Kind="Github" />
+      </Button>
+    </mah:WindowCommands>
+  </mah:MetroWindow.LeftWindowCommands>
 
-    <mah:MetroWindow.RightWindowCommands>
-        <mah:WindowCommands>
-            <Button ToolTip="Create a new tab" Cursor="Hand" Command="{Binding CreateNewTabCommand}">
-                <md:PackIcon Width="22" Height="22" Kind="TabAdd" />
-            </Button>
-        </mah:WindowCommands>
-    </mah:MetroWindow.RightWindowCommands>
+  <mah:MetroWindow.RightWindowCommands>
+    <mah:WindowCommands>
+      <Button ToolTip="Create a new tab" Cursor="Hand" Command="{Binding CreateNewTabCommand}">
+        <md:PackIcon Width="22" Height="22" Kind="TabAdd" />
+      </Button>
+    </mah:WindowCommands>
+  </mah:MetroWindow.RightWindowCommands>
 
-    <mah:MetroWindow.Resources>
-        <DataTemplate x:Key="TabItemTemplate" DataType="{x:Type vm:TabViewModel}">
-            <views:TabView />
-        </DataTemplate>
-    </mah:MetroWindow.Resources>
+  <mah:MetroWindow.Resources>
+    <DataTemplate x:Key="TabItemTemplate" DataType="{x:Type vm:TabViewModel}">
+      <views:TabView />
+    </DataTemplate>
 
-    <Grid>
-        <TabControl md:ColorZoneAssist.Mode="PrimaryLight" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+    <DataTemplate DataType="{x:Type vm:MyControlViewModel}">
+      <views:MyUserControl />
+    </DataTemplate>
+  </mah:MetroWindow.Resources>
+
+  <Grid x:Name="RootGrid">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition />
+    </Grid.RowDefinitions>
+
+    <!--<views:MyUserControl Grid.Row="0"/>-->
+
+    <ContentControl Content="{Binding ControlViewModel}" Grid.Row="1" />
+
+    <TabControl md:ColorZoneAssist.Mode="PrimaryLight" 
+                Grid.Row="2"
+                    HorizontalAlignment="Stretch" 
+                    HorizontalContentAlignment="Left"
                     ItemsSource="{Binding Tabs}"
                     SelectedItem="{Binding SelectedTab, Mode=TwoWay}"
                     ContentTemplate="{StaticResource TabItemTemplate}">
-            <TabControl.Resources>
-                <Style TargetType="TabItem" BasedOn="{StaticResource {x:Type TabItem}}">
-                    <Setter Property="Header" Value="{Binding TabName}" />
-                </Style>
-            </TabControl.Resources>
-        </TabControl>
-    </Grid>
+      <TabControl.Resources>
+        <Style TargetType="TabItem" BasedOn="{StaticResource {x:Type TabItem}}">
+          <Setter Property="Header" Value="{Binding TabName}" />
+        </Style>
+      </TabControl.Resources>
+    </TabControl>
+  </Grid>
 </mah:MetroWindow>

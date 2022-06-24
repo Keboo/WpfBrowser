@@ -21,14 +21,17 @@ public class MainWindowViewModel : ObservableObject, IRecipient<CloseTabRequest>
 
     private readonly IMessenger _messenger;
     private readonly ITabViewModelFactory _tabViewModelFactory;
+    public MyControlViewModel ControlViewModel { get; }
     private int _tabCount;
     private TabViewModel? _selectedTab;
 
-    public MainWindowViewModel(IMessenger messenger, ITabViewModelFactory tabViewModelFactory)
+    public MainWindowViewModel(IMessenger messenger,
+        ITabViewModelFactory tabViewModelFactory,
+        MyControlViewModel controlViewModel)
     {
         _messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
         _tabViewModelFactory = tabViewModelFactory ?? throw new ArgumentNullException(nameof(tabViewModelFactory));
-
+        ControlViewModel = controlViewModel ?? throw new ArgumentNullException(nameof(controlViewModel));
         CreateNewTabCommand = new RelayCommand(CreateNewTab, () => Tabs.Count < 5);
         
         _messenger.Register(this);
