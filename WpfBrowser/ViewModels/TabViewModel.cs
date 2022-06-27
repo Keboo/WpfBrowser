@@ -43,7 +43,7 @@ public class TabViewModel : IDisposable
 
     public void Dispose()
     {
-        // Dispose pattern may seem overkill in this simple scenario, but in the real-world setup which I am trying to simply with this demo application, I have components (eg. TabViewModel or similar) 
+        // Dispose pattern may seem overkill in this simple scenario, but in the real-world setup which I am trying to exemplify with this simple demo application, I have components (eg. TabViewModel or similar) 
         // that create and maintain unmanaged resources, and thus I need a proper way of cleaning that up; Dispose pattern seems like a good match for that, even more so because the DI container (scope)
         // will dispose the "things" it create when it itself is disposed (at least all "things" that implement IDisposable)
         Debug.WriteLine($"[{GetHashCode()}] {GetType().Name} disposed");
