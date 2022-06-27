@@ -8,10 +8,13 @@ namespace WpfBrowser.Services;
 
 internal class TabViewModelFactoryOption3 : ITabViewModelFactory, IRecipient<CloseTabRequest>
 {
+    private IServiceProvider ServiceProvider { get; }
+
     private ConcurrentDictionary<TabViewModel, IServiceScope> ServiceScopes { get; } = new();
 
-    public TabViewModelFactoryOption3(IMessenger messenger)
+    public TabViewModelFactoryOption3(IServiceProvider serviceProvider, IMessenger messenger)
     {
+        ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         messenger.Register(this);
     }
 
@@ -25,16 +28,17 @@ internal class TabViewModelFactoryOption3 : ITabViewModelFactory, IRecipient<Clo
     ///
     /// CONS
     ///  - Breaks live unit testing
-    ///  - Not sure that AutoDI actually supports scopes?
+    ///  - Other drawbacks?
     /// </summary>
     public TabViewModel Create(string tabName)
     {
-        // Most of this method is pseudo-code since I don't think AutoDI actually supports scopes?! For the sake of compilation, I have added simple classes to emulate the AutoDI API.
-        var autoDiScope = GlobalDI.CreateScope();   // Seems like it is not supported?!
+        // For the sake of compilation, I have added a "dummy" ServiceProviderMixins just to show the AutoDI GetService() overload that takes parameters (in order to emulate the AutoDI API).
+        var scope = ServiceProvider.CreateScope();
+
+        // If I understand correctly, AutoDI will merge resolved ctor parameters from DI container with the run-time data (tabName) to a complete parameter list by IL interweaving --- MAGIC :-)
+        var tabViewModel = scope.ServiceProvider.GetService<TabViewModel>(new object[] { tabName });
         
-        var tabViewModel = autoDiScope.GetService<TabViewModel>(new object[] { tabName });    // If I understand correctly, AutoDI will merge resolved ctor parameters from DI container with the run-time data (tabName) to a complete parameter list by IL interweaving -- MAGIC :-)
-        
-        ServiceScopes[tabViewModel] = autoDiScope;
+        ServiceScopes[tabViewModel] = scope;
         return tabViewModel;
     }
 
@@ -47,25 +51,10 @@ internal class TabViewModelFactoryOption3 : ITabViewModelFactory, IRecipient<Clo
     }
 }
 
-internal class GlobalDI
+public static class ServiceProviderMixins
 {
-    public static GloablDIServiceScope CreateScope()
+    public static T GetService<T>(this IServiceProvider provider, params object[] autoDiParameters)
     {
         return default;
     }
-}
-
-internal class GloablDIServiceScope : IServiceScope
-{
-    public TServiceType GetService<TServiceType>(object[] parameters)
-    {
-        return default;
-    }
-
-    public void Dispose()
-    {
-        throw new NotImplementedException();
-    }
-
-    public IServiceProvider ServiceProvider { get; }
 }
