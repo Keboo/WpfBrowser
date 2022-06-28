@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Windows;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Toolkit.Mvvm.Messaging;
@@ -14,6 +16,8 @@ namespace WpfBrowser
     /// </summary>
     public partial class App : Application
     {
+        private const bool UseAutofac = true;
+
         [STAThread]
         public static void Main(string[] args)
         {
@@ -29,12 +33,28 @@ namespace WpfBrowser
 
         private static IHostBuilder CreateHostBuilder(string[] args)
         {
-            return Host.CreateDefaultBuilder(args)
+            var builder = Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((hostContext, builder) =>
                 {
                     //TODO: Any config setup here
-                })
-                .ConfigureServices((hostContext, services) =>
+                });
+
+            if (UseAutofac)
+            {
+                builder.UseServiceProviderFactory(new AutofacServiceProviderFactory())
+                    .ConfigureContainer<ContainerBuilder>(services =>
+                    {
+                        services.RegisterType<WeakReferenceMessenger>().As<IMessenger>().SingleInstance();
+
+                        services.RegisterType<MainWindow>().SingleInstance();
+                        services.RegisterType<MainWindowViewModel>();
+                        services.RegisterType<TabViewModelFactoryOptionAutofac>().As<ITabViewModelFactory>().SingleInstance();
+                        services.RegisterType<TabViewModel>().InstancePerLifetimeScope();
+                    });
+            }
+            else
+            {
+                builder.ConfigureServices((hostContext, services) =>
                 {
                     services.AddSingleton<IMessenger, WeakReferenceMessenger>();
 
@@ -43,6 +63,9 @@ namespace WpfBrowser
                     services.AddSingleton<ITabViewModelFactory, TabViewModelFactoryOption1>();
                     services.AddScoped<TabViewModel>();
                 });
+            }
+
+            return builder;
         }
     }
 }

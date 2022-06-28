@@ -17,13 +17,6 @@ public class TabViewModel : IDisposable
     private readonly IMessenger _messenger;
 
     /// <summary>
-    /// Constructor used when instantiated by DI container
-    /// </summary>
-    public TabViewModel(IMessenger? messenger) : this(messenger, string.Empty)
-    {
-    }
-
-    /// <summary>
     /// Constructor used when new'ed up directly in the factory
     /// </summary>
     public TabViewModel(IMessenger? messenger, string? tabName)
