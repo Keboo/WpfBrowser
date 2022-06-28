@@ -35,8 +35,14 @@ internal class TabViewModelFactoryOption3 : ITabViewModelFactory, IRecipient<Clo
         // For the sake of compilation, I have added a "dummy" ServiceProviderMixins just to show the AutoDI GetService() overload that takes parameters (in order to emulate the AutoDI API).
         var scope = ServiceProvider.CreateScope();
 
+        //TODO: AutoDI resolves dependencies (IMessenger) with the global scope, at present there is not a way to leverage the scope created above..
+        //Also because it is not instantiating the TabeViewModel, this will not be stored in the scope, so you will need to dispose of it itself.
+        //It is also worth noting, that because you can directly instantiate the TabViewModel this way you really don't need the factory any more, this could be done directly in the MainWindowViewModel (this ignore the scope; for working with scopes like that I would still use a factory).
+        //There is a little on the wiki explaining how this works:
+        //https://github.com/Keboo/AutoDI/wiki/Quick-Start
+
         // If I understand correctly, AutoDI will merge resolved ctor parameters from DI container with the run-time data (tabName) to a complete parameter list by IL interweaving --- MAGIC :-)
-        var tabViewModel = scope.ServiceProvider.GetService<TabViewModel>(new object[] { tabName });
+        var tabViewModel = new TabViewModel(tabName);
         
         ServiceScopes[tabViewModel] = scope;
         return tabViewModel;
@@ -46,15 +52,8 @@ internal class TabViewModelFactoryOption3 : ITabViewModelFactory, IRecipient<Clo
     {
         if (ServiceScopes.TryRemove(message.TabViewModel, out var scope))
         {
+            message.TabViewModel.Dispose();
             scope.Dispose();    // This will now dispose the TabViewModel because the DI container (scope) created it
         }
-    }
-}
-
-public static class ServiceProviderMixins
-{
-    public static T GetService<T>(this IServiceProvider provider, params object[] autoDiParameters)
-    {
-        return default;
     }
 }

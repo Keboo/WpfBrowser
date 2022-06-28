@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Windows.Input;
+using AutoDI;
 using Microsoft.Toolkit.Mvvm.Input;
 using Microsoft.Toolkit.Mvvm.Messaging;
 
@@ -27,6 +28,16 @@ public class TabViewModel : IDisposable
     /// Constructor used when new'ed up directly in the factory
     /// </summary>
     public TabViewModel(IMessenger? messenger, string? tabName)
+    {
+        _messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
+        TabName = tabName ?? throw new ArgumentNullException(nameof(tabName));
+
+        CloseTabCommand = new RelayCommand(CloseTab);
+
+        Debug.WriteLine($"[{GetHashCode()}] {GetType().Name} created");
+    }
+
+    public TabViewModel(string? tabName, [Dependency]IMessenger? messenger = null)
     {
         _messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
         TabName = tabName ?? throw new ArgumentNullException(nameof(tabName));

@@ -1,11 +1,17 @@
 ﻿using System;
 using System.Windows;
+using AutoDI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using WpfBrowser.Services;
 using WpfBrowser.ViewModels;
 using WpfBrowser.Views;
+
+[assembly:AutoDI.Settings(
+    DebugLogLevel = AutoDI.DebugLogLevel.Verbose,
+    DebugCodeGeneration = AutoDI.CodeLanguage.CSharp
+)]
 
 namespace WpfBrowser
 {
@@ -18,7 +24,10 @@ namespace WpfBrowser
         public static void Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
+
             host.Start();
+            
+            GlobalDI.Register(host.Services);
 
             var app = new App();
             app.InitializeComponent();
@@ -40,9 +49,11 @@ namespace WpfBrowser
 
                     services.AddSingleton<MainWindow>();
                     services.AddSingleton<MainWindowViewModel>();
-                    services.AddSingleton<ITabViewModelFactory, TabViewModelFactoryOption1>();
+                    services.AddSingleton<ITabViewModelFactory, TabViewModelFactoryOption3>();
                     services.AddScoped<TabViewModel>();
-                });
+                })
+                .UseAutoDI()
+                ;
         }
     }
 }
